@@ -2,7 +2,7 @@
 // Basically, this is the same as From. The main difference is that this should return a Result type
 // instead of the target type itself.
 // You can read more about it at https://doc.rust-lang.org/std/convert/trait.TryFrom.html
-use std::convert::{TryInto, TryFrom};
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
 struct Color {
@@ -10,8 +10,6 @@ struct Color {
     green: u8,
     blue: u8,
 }
-
-// I AM NOT DONE
 
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
@@ -22,10 +20,22 @@ struct Color {
 // but slice implementation need check slice length!
 // Also note, that chunk of correct rgb color must be integer in range 0..=255.
 
+fn convert_i16_to_color(input: i16) -> Result<u8, String> {
+    match input.try_into() {
+        Ok(val) => Ok(val),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
 // Tuple implementation
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = String;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        Ok(Color {
+            red: convert_i16_to_color(tuple.0)?,
+            green: convert_i16_to_color(tuple.1)?,
+            blue: convert_i16_to_color(tuple.2)?,
+        })
     }
 }
 
@@ -33,6 +43,11 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = String;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        Ok(Color {
+            red: convert_i16_to_color(arr[0])?,
+            green: convert_i16_to_color(arr[1])?,
+            blue: convert_i16_to_color(arr[2])?,
+        })
     }
 }
 
@@ -40,6 +55,14 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = String;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err("Array slice must have length of 3 to convert to color".into());
+        }
+        Ok(Color {
+            red: convert_i16_to_color(slice[0])?,
+            green: convert_i16_to_color(slice[1])?,
+            blue: convert_i16_to_color(slice[2])?,
+        })
     }
 }
 
